@@ -87,7 +87,7 @@ class ResClient {
 
   _onData(dynamic data) {
     final message = _parseDto(data);
-    // log.d('<-- $message');
+    logger.trace('<-- $message');
 
     if (message.id != null) {
       _handleResponse(message);
