@@ -199,15 +199,16 @@ class ResClient {
 
     final rid = result['rid'];
 
+    cacheResources(result);
     if (rid != null) {
-      cacheResources(result);
       return _cache[rid]?.item;
     } else if (result.containsKey('payload')) {
       // payload can be null
       return result['payload'];
     } else {
-      throw InvalidMessageException(
-          'call response has both `rid` and `payload` missing', result);
+      // TODO: the subscribe tho?
+      // throw InvalidMessageException(
+      //     'call response has both `rid` and `payload` missing', result);
     }
   }
 
@@ -216,8 +217,8 @@ class ResClient {
     return _call('call', rid, method, params: params);
   }
 
-  Future<dynamic> subscribe(String rid) {
-    return _call('subscribe', rid, null);
+  Future<dynamic> subscribe(String rid, String? method) {
+    return _call('subscribe', rid, method);
   }
 
   cacheResources(dynamic payload) {
