@@ -61,6 +61,8 @@ abstract class ResEntry {
 
   @override
   int get hashCode => rid.hashCode;
+
+  ResClient get client => _client;
 }
 
 class ResModel extends ResEntry {
