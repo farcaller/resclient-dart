@@ -16,6 +16,7 @@ library res_client;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:glog/glog.dart';
 import 'package:res_client/message.dart';
@@ -153,7 +154,6 @@ class ResClient {
 
   _handleUnsubscribeEvent(CacheItem cacheItem) {
     // TODO: implement
-    throw 'not implemented';
   }
 
   _onDone() {
@@ -192,10 +192,27 @@ class ResClient {
       // we will allow auth calls through, but not anything else if the callback is set.
       await authCallback();
     }
-    final result = await _send({
-      'method': '$type.$requestRid${method != null ? '.$method' : ''}',
-      'params': params ?? {},
-    });
+
+    dynamic result;
+    try {
+      result = await _send({
+        'method': '$type.$requestRid${method != null ? '.$method' : ''}',
+        'params': params ?? {},
+      });
+    } on ResError catch (e) {
+      if (e.code == 'core.tooActive') {
+        print('TTL ${e.data}');
+        final waitSeconds = e.data['seconds'];
+        logger.warning('too active, retry in $waitSeconds seconds');
+        await Future.delayed(Duration(seconds: waitSeconds, milliseconds: 200));
+        result = await _send({
+          'method': '$type.$requestRid${method != null ? '.$method' : ''}',
+          'params': params ?? {},
+        });
+      } else {
+        rethrow;
+      }
+    }
 
     final rid = result['rid'];
 

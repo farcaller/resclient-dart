@@ -1,3 +1,7 @@
+## 0.8.2
+
+* Handle the rate-limiting on the client side.
+
 ## 0.8.1
 
 * Restore the missing tracing.

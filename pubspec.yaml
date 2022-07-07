@@ -1,6 +1,6 @@
 name: res_client
 description: A resgate.io client.
-version: 0.8.1
+version: 0.8.2
 homepage: https://github.com/farcaller/resclient-dart
 
 environment:
