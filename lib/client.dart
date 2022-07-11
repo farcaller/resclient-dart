@@ -32,7 +32,7 @@ typedef AuthCallback = Future<void> Function();
 const logger = GlogContext('res_client');
 
 class ResClient {
-  final Uri _endpoint;
+  Uri? _lastEndpoint;
   WebSocketChannel? _channel;
   int _currentId = 0;
   final Map<int, Completer<dynamic>> _callbacks = {};
@@ -42,14 +42,21 @@ class ResClient {
   Completer? _connectedCallback;
   bool _forceClosing = false;
 
-  ResClient(this._endpoint, {AuthCallback? authCallback})
+  ResClient({AuthCallback? authCallback})
       : _eventsController = StreamController.broadcast(),
         _authCallback = authCallback;
 
-  Future<void> reconnect() async {
+  Future<void> reconnect(Uri endpoint) async {
     assert(_connectedCallback == null);
+
+    if (_lastEndpoint != endpoint) {
+      _lastEndpoint = endpoint;
+      _cache.clear();
+    }
+
     _connectedCallback = Completer();
-    _channel = WebSocketChannel.connect(_endpoint);
+
+    _channel = WebSocketChannel.connect(endpoint);
     _channel!.stream.listen(_onData, onError: _onError, onDone: _onDone);
 
     _currentId = 0;
