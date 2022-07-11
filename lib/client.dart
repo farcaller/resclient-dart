@@ -39,20 +39,27 @@ class ResClient {
   final Map<String, CacheItem> _cache = {};
   final StreamController<ResEvent> _eventsController;
   final AuthCallback? _authCallback;
+  Completer? _connectedCallback;
+  bool _forceClosing = false;
 
   ResClient(this._endpoint, {AuthCallback? authCallback})
       : _eventsController = StreamController.broadcast(),
         _authCallback = authCallback;
 
-  reconnect() {
+  Future<void> reconnect() async {
+    assert(_connectedCallback == null);
+    _connectedCallback = Completer();
     _channel = WebSocketChannel.connect(_endpoint);
     _channel!.stream.listen(_onData, onError: _onError, onDone: _onDone);
 
     _currentId = 0;
     _sendVersion();
+
+    return _connectedCallback!.future;
   }
 
   forceClose() {
+    _forceClosing = true;
     _channel?.sink.close();
   }
 
@@ -156,13 +163,19 @@ class ResClient {
     // TODO: implement
   }
 
-  _onDone() {
+  _onDone({Object? error}) {
     for (final e in _callbacks.entries) {
       e.value.completeError(ClientDisconnectedException());
     }
     _callbacks.clear();
-    logger.debug('websocket closed');
+    logger.debug(
+        'websocket closed${_forceClosing ? ' because client asked' : ''}');
+    if (_forceClosing) _eventsController.add(ClientForcedDisconnectedEvent());
     _eventsController.add(DisconnectedEvent());
+    if (!_connectedCallback!.isCompleted)
+      _connectedCallback!.completeError(error ?? DisconnectedEvent());
+    _connectedCallback = null;
+    _forceClosing = false;
   }
 
   _onError(Object error) {
@@ -178,6 +191,7 @@ class ResClient {
 
     logger.debug('got version reply $response');
     _eventsController.add(ConnectedEvent());
+    _connectedCallback!.complete();
   }
 
   auth(String rid, String method, {Map<String, dynamic>? params}) async {
@@ -201,14 +215,13 @@ class ResClient {
       });
     } on ResError catch (e) {
       if (e.code == 'core.tooActive') {
-        print('TTL ${e.data}');
-        final waitSeconds = e.data['seconds'];
+        int waitSeconds = 1;
+        if (e.data != null && e.data['seconds'] != null) {
+          waitSeconds = e.data['seconds'];
+        }
         logger.warning('too active, retry in $waitSeconds seconds');
         await Future.delayed(Duration(seconds: waitSeconds, milliseconds: 200));
-        result = await _send({
-          'method': '$type.$requestRid${method != null ? '.$method' : ''}',
-          'params': params ?? {},
-        });
+        return _call(type, requestRid, method, params: params);
       } else {
         rethrow;
       }

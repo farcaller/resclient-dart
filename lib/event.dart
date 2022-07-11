@@ -22,6 +22,9 @@ class ConnectedEvent extends ResEvent {}
 /// Broadcasted when the websocket is disconnected.
 class DisconnectedEvent extends ResEvent {}
 
+/// Broadcasted when the websocket is disconnected by the user.
+class ClientForcedDisconnectedEvent extends ResEvent {}
+
 abstract class ResourceEvent extends ResEvent {
   final RID rid;
 
