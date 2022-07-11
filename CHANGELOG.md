@@ -1,3 +1,8 @@
+## 0.8.3
+
+* Make the ratelimt retries looping if another rate limit is hit.
+* Expose the forced socket closure from the client side via ClientForcedDisconnectedEvent.
+
 ## 0.8.2
 
 * Handle the rate-limiting on the client side.
