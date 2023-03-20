@@ -81,8 +81,8 @@ class ResClient {
 
     object['id'] = _currentId;
 
-    logger.trace('--> $object');
     final payload = jsonEncode(object);
+    logger.trace('--> $payload');
     _channel!.sink.add(payload);
 
     return completer.future;
