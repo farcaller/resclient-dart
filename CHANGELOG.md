@@ -1,3 +1,7 @@
+## 0.8.5
+
+* Log the outgoing packets as JSON
+
 ## 0.8.4
 
 * Allow reconnecting to a different endpoint. This flushes caches but keeps the
