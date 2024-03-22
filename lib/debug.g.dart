@@ -8,6 +8,7 @@ part of 'debug.dart';
 
 // ignore_for_file: duplicate_ignore
 // ignore_for_file: unused_local_variable
+// ignore_for_file: unnecessary_string_interpolations
 @GenerateFor(_cacheIndex)
 TrustedHtml cacheIndex(ResClient client) {
   var $ = StringBuffer();
@@ -15,13 +16,8 @@ TrustedHtml cacheIndex(ResClient client) {
   var rid = '';
   final rids = client.cachedRids;
   rids.sort();
-  $.writeln('<!DOCTYPE html>');
-  $.write('<html>');
-  $.write('<head>');
-  $.write('</head>');
-  $.write('<body>');
-  $.write('</body>');
-  $.write('</html>');
+  $.writeln('<!doctype html>');
+
   $.write('<html lang="en">');
   $.write('<head>');
   $.write('\n  ');
@@ -64,12 +60,12 @@ TrustedHtml cacheIndex(ResClient client) {
 
 // ignore_for_file: duplicate_ignore
 // ignore_for_file: unused_local_variable
+// ignore_for_file: unnecessary_string_interpolations
 @GenerateFor(_cacheItem)
 TrustedHtml cacheItem(CacheItem item) {
   var $ = StringBuffer();
 
-  final yamlWriter = YAMLWriter();
-  yamlWriter.toEncodable = (dynamic object) {
+  final yamlWriter = YamlWriter(toEncodable: (dynamic object) {
     if (object is ResModel) {
       final data = object.toJson().map((key, value) {
         if (value is ResEntry) {
@@ -90,14 +86,9 @@ TrustedHtml cacheItem(CacheItem item) {
       return data;
     }
     return object.toJson();
-  };
-  $.writeln('<!DOCTYPE html>');
-  $.write('<html>');
-  $.write('<head>');
-  $.write('</head>');
-  $.write('<body>');
-  $.write('</body>');
-  $.write('</html>');
+  });
+  $.writeln('<!doctype html>');
+
   $.write('<html lang="en">');
   $.write('<head>');
   $.write('\n  ');
