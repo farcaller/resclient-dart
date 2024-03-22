@@ -1,3 +1,7 @@
+## 0.8.6
+
+* Update the YamlWriter interaction code (https://github.com/farcaller/resclient-dart/pull/1)
+
 ## 0.8.5
 
 * Log the outgoing packets as JSON
