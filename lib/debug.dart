@@ -47,29 +47,30 @@ void _cacheIndex(ResClient client) {
 
 @template
 void _cacheItem(CacheItem item) {
-  final yamlWriter = YAMLWriter();
-  yamlWriter.toEncodable = (dynamic object) {
-    if (object is ResModel) {
-      final data = object.toJson().map((key, value) {
-        if (value is ResEntry) {
-          return MapEntry(key, '##RID## ${value.rid}');
-        } else {
-          return MapEntry(key, value);
-        }
-      });
-      return data;
-    } else if (object is ResCollection) {
-      final data = object.toJson().map((value) {
-        if (value is ResEntry) {
-          return '##RID## ${value.rid}';
-        } else {
-          return value;
-        }
-      }).toList();
-      return data;
-    }
-    return object.toJson();
-  };
+  final yamlWriter = YamlWriter(
+    toEncodable: (dynamic object) {
+      if (object is ResModel) {
+        final data = object.toJson().map((key, value) {
+          if (value is ResEntry) {
+            return MapEntry(key, '##RID## ${value.rid}');
+          } else {
+            return MapEntry(key, value);
+          }
+        });
+        return data;
+      } else if (object is ResCollection) {
+        final data = object.toJson().map((value) {
+          if (value is ResEntry) {
+            return '##RID## ${value.rid}';
+          } else {
+            return value;
+          }
+        }).toList();
+        return data;
+      }
+      return object.toJson();
+    },
+  );
   '<!doctype html>';
   '''
 <html lang="en">
